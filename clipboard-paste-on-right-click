@@ -1,0 +1,43 @@
+#! perl
+
+# https://github.com/shyiko/urxvt-clipboard-paste-on-right-click
+# @version 0.1.0
+# @author Stanley Shyiko <stanley.shyiko@gmail.com>
+# @license MIT
+
+=head1 NAME
+
+clipboard-past-on-right-click - paste the contents of the clipboard with the right click.
+
+=head1 DESCRIPTION
+
+To install:
+- copy clipboard-past-on-right-click to ~/.urxvt/ext/
+- add "URxvt.perl-ext-common: ...,clipboard-past-on-right-click" to ~/.Xresources
+
+=cut
+
+sub on_button_press {
+  my ($self, $event) = @_;
+  $self->ModLevel3Mask;
+  if ($event->{button} == 3) {
+    $self->selection_clear;
+    my $content = `/usr/bin/xclip -loop 1 -out -selection clipboard`;
+    my $count = ($content =~ tr/\012\015//);
+    if (not $count) {
+      $self->tt_paste ($content);
+    }
+    return 1;
+  }
+  return;
+}
+
+sub on_button_release {
+  my ($self, $event) = @_;
+  $self->ModLevel3Mask;
+  if ($event->{button} == 3) {
+    $self->selection_clear;
+    return 1;
+  }
+  return;
+}
